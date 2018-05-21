@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -11,14 +8,22 @@ using Microsoft.Extensions.DependencyInjection;
 using ToDoListWebApp.Data;
 using ToDoListWebApp.Models;
 using ToDoListWebApp.Services;
+using ToDoListWebApp.Filters;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using ToDoListWebApp.Repos.Interfaces;
+using ToDoListWebApp.Repos;
 
 namespace ToDoListWebApp
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IHostingEnvironment _env;
+
+        public Startup(IConfiguration configuration, IHostingEnvironment environment)
         {
             Configuration = configuration;
+            _env = environment; 
         }
 
         public IConfiguration Configuration { get; }
@@ -29,6 +34,15 @@ namespace ToDoListWebApp
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+            services.AddMvcCore(config =>
+              config.Filters.Add(new ToDoListExceptionFilter(_env.IsDevelopment())))
+              .AddJsonFormatters(j =>
+              {
+                  j.ContractResolver = new DefaultContractResolver();
+                  j.Formatting = Formatting.Indented;
+              });
+
+
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
@@ -37,6 +51,10 @@ namespace ToDoListWebApp
             services.AddTransient<IEmailSender, EmailSender>();
 
             services.AddMvc();
+
+            services.AddScoped<ITeamRepo, TeamRepo>();
+            services.AddScoped<ISupervisorRepo, SupervisorRepo>();
+            services.AddScoped<IToDoItemRepo, ToDoItemRepo>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

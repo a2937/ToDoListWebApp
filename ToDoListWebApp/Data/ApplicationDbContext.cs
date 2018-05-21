@@ -10,6 +10,10 @@ namespace ToDoListWebApp.Data
 {
     public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     {
+        public ApplicationDbContext() : base()
+        {
+        }
+
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
@@ -22,5 +26,9 @@ namespace ToDoListWebApp.Data
             // For example, you can rename the ASP.NET Identity table names and more.
             // Add your customizations after calling base.OnModelCreating(builder);
         }
+
+        public DbSet<ToDoListWebApp.Models.ToDoListItem> ToDoListItem { get; set; }
+
+        public DbSet<ToDoListWebApp.Models.Team> Team { get; set; }
     }
 }
