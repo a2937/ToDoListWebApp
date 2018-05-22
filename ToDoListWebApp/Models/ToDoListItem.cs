@@ -39,7 +39,7 @@ namespace ToDoListWebApp.Models
                 
             set
             {
-                if(DateTime.Now.CompareTo(value) <= -1)
+                if(DateTime.Now.CompareTo(value) >= 1)
                 {
                     throw new InvalidDateException(" Cannot assign things to be done earlier."); 
                 }

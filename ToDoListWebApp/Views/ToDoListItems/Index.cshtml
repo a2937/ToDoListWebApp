@@ -28,8 +28,10 @@
         </tr>
     </thead>
     <tbody>
-@foreach (var item in Model) {
-        <tr>
+   @foreach (var item in Model)
+    {
+
+        <tr class="@((item.Complete == true) ? "complete" : "working")">
             <td>
                 @Html.DisplayFor(modelItem => item.Name)
             </td>

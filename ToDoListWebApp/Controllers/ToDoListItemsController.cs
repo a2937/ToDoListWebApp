@@ -12,7 +12,7 @@ using ToDoListWebApp.Repos.Interfaces;
 
 namespace ToDoListWebApp.Controllers
 {
-    [Authorize]
+    //[Authorize]
     public class ToDoListItemsController : Controller
     {
         private readonly IToDoItemRepo _toDoRepo;

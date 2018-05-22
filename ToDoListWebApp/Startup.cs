@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using ToDoListWebApp.Repos.Interfaces;
 using ToDoListWebApp.Repos;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace ToDoListWebApp
 {
@@ -34,6 +35,13 @@ namespace ToDoListWebApp
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
+           
+
+
+            services.AddIdentity<ApplicationUser, IdentityRole>()
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
             services.AddMvcCore(config =>
               config.Filters.Add(new ToDoListExceptionFilter(_env.IsDevelopment())))
               .AddJsonFormatters(j =>
@@ -41,20 +49,17 @@ namespace ToDoListWebApp
                   j.ContractResolver = new DefaultContractResolver();
                   j.Formatting = Formatting.Indented;
               });
-
-
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
-
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
-
-            services.AddMvc();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddScoped<ITeamRepo, TeamRepo>();
             services.AddScoped<ISupervisorRepo, SupervisorRepo>();
             services.AddScoped<IToDoItemRepo, ToDoItemRepo>();
+
+            services.AddMvc();
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -81,6 +86,9 @@ namespace ToDoListWebApp
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            ApplicationDbContext.CreateAdminAccount(app.ApplicationServices,
+      Configuration).Wait();
         }
     }
 }

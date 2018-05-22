@@ -16,18 +16,18 @@ namespace ToDoListWebApp.Controllers
     [Authorize]
     public class TeamsController : Controller
     {
-        private readonly ApplicationDbContext _context;
+        //private readonly ApplicationDbContext _context;
 
         private ITeamRepo _teamRepo { get; set; }
         private UserManager<ApplicationUser> _userManager;
         private ISupervisorRepo _supervisorRepo;
 
-        public TeamsController(ApplicationDbContext context, ITeamRepo teamRepo, UserManager<ApplicationUser> userManager, ISupervisorRepo supervisorRepo)
+        public TeamsController( ITeamRepo teamRepo, UserManager<ApplicationUser> userManager, ISupervisorRepo supervisorRepo)
         {
             _teamRepo = teamRepo;
             _userManager = userManager;
             _supervisorRepo = supervisorRepo;
-            _context = context;
+          //  _context = context;
         }
 
 
@@ -77,13 +77,16 @@ namespace ToDoListWebApp.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,SupervisorId,Id,TimeStamp")] Team team)
+        //public async Task<IActionResult> Create([Bind("Name,SupervisorId,Id,TimeStamp")] Team team)
+        public IActionResult Create([Bind("Name,SupervisorId,Id,TimeStamp")] Team team)
         {
             if (ModelState.IsValid)
             {
-                team.Id = Guid.NewGuid();
-                _context.Add(team);
-                await _context.SaveChangesAsync();
+                //team.Id = Guid.NewGuid();
+                _teamRepo.Add(team);
+                _teamRepo.SaveChanges(); 
+                //_context.Add(team);
+                //await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
             //ViewData["SupervisorId"] = new SelectList(_context.Set<Supervisor>(), "Id", "Id", team.SupervisorId);
@@ -92,14 +95,16 @@ namespace ToDoListWebApp.Controllers
         }
 
         // GET: Teams/Edit/5
-        public async Task<IActionResult> Edit(Guid? id)
+        //public async Task<IActionResult> Edit(Guid? id)
+        public IActionResult Edit(Guid? id)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var team = await _context.Team.SingleOrDefaultAsync(m => m.Id == id);
+            // var team = await _context.Team.SingleOrDefaultAsync(m => m.Id == id);
+            var team = _teamRepo.GetAll().SingleOrDefault(m => m.Id == id);
             if (team == null)
             {
                 return NotFound();
@@ -143,7 +148,8 @@ namespace ToDoListWebApp.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["SupervisorId"] = new SelectList(_context.Set<Supervisor>(), "Id", "Id", team.SupervisorId);
+            //ViewData["SupervisorId"] = new SelectList(_context.Set<Supervisor>(), "Id", "Id", team.SupervisorId);
+            ViewData["SupervisorId"] = new SelectList(_supervisorRepo.GetAll().ToHashSet<Supervisor>(), "Id", "Id", team.SupervisorId);
             return View(team);
         }
 
@@ -190,7 +196,7 @@ namespace ToDoListWebApp.Controllers
 
         private bool TeamExists(Guid id)
         {
-            return _context.Team.Any(e => e.Id == id);
+            return _teamRepo.GetAll().Any(e => e.Id == id);
         }
     }
 }
