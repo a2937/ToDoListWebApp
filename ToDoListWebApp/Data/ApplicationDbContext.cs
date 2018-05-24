@@ -78,5 +78,35 @@ namespace ToDoListWebApp.Data
                 }
             }
         }
+
+        public static async Task CreateAuditorAccount(IServiceProvider serviceProvider, IConfiguration configuration)
+        {
+            UserManager<ApplicationUser> userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            RoleManager<IdentityRole> roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+
+            string username = configuration["UserData:Auditor:Name"];
+            string email = configuration["UserData:Auditor:Email"];
+            string password = configuration["UserData:Auditor:Password"];
+            string role = configuration["UserData:Auditor:Role"];
+
+            if (await userManager.FindByNameAsync(username) == null)
+            {
+                if (await roleManager.FindByNameAsync(role) == null)
+                {
+                    await roleManager.CreateAsync(new IdentityRole(role));
+                }
+                ApplicationUser user = new ApplicationUser
+                {
+                    UserName = username,
+                    Email = email
+                };
+                IdentityResult result = await userManager.CreateAsync(user, password);
+
+                if (result.Succeeded)
+                {
+                    await userManager.AddToRoleAsync(user, role);
+                }
+            }
+        }
     }
 }

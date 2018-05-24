@@ -35,13 +35,22 @@ namespace ToDoListWebApp
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-           
 
 
-            services.AddIdentity<ApplicationUser, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();
 
+            services.AddIdentity<ApplicationUser, IdentityRole>(opts => {
+                opts.User.RequireUniqueEmail = true;
+                //opts.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyz";
+                opts.Password.RequiredLength = 6;
+                opts.Password.RequireNonAlphanumeric = false;
+                opts.Password.RequireLowercase = false;
+                opts.Password.RequireUppercase = false;
+                opts.Password.RequireDigit = false;
+            })
+               .AddEntityFrameworkStores<ApplicationDbContext>()
+               .AddDefaultTokenProviders();
+
+            /*
             services.AddMvcCore(config =>
               config.Filters.Add(new ToDoListExceptionFilter(_env.IsDevelopment())))
               .AddJsonFormatters(j =>
@@ -49,6 +58,8 @@ namespace ToDoListWebApp
                   j.ContractResolver = new DefaultContractResolver();
                   j.Formatting = Formatting.Indented;
               });
+              */
+            //services.AddAuthentication(); 
             // Add application services.
             services.AddTransient<IEmailSender, EmailSender>();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
@@ -88,6 +99,8 @@ namespace ToDoListWebApp
             });
 
             ApplicationDbContext.CreateAdminAccount(app.ApplicationServices,
+      Configuration).Wait();
+            ApplicationDbContext.CreateAuditorAccount(app.ApplicationServices,
       Configuration).Wait();
         }
     }

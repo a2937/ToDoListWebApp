@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,23 +13,24 @@ using ToDoListWebApp.Repos.Interfaces;
 
 namespace ToDoListWebApp.Controllers
 {
-    //[Authorize]
+    [Authorize]
     public class ToDoListItemsController : Controller
     {
         private readonly IToDoItemRepo _toDoRepo;
-
-        public ToDoListItemsController(IToDoItemRepo toDoRepo)
+        private readonly UserManager<ApplicationUser> _userManager; 
+        public ToDoListItemsController(IToDoItemRepo toDoRepo, UserManager<ApplicationUser> userManager)
         {
             _toDoRepo = toDoRepo;
+            _userManager = userManager; 
         }
 
         // GET: ToDoListItems
         //public async Task<IActionResult> Index()
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             //return View(await _toDoRepo.GetAll().ToListAsync());
-
-            return View(_toDoRepo.GetAll().ToList());
+            ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            return View(_toDoRepo.GetAll().Where(x => x.UserId == user.Id).ToList());
         }
 
         // GET: ToDoListItems/Details/5
@@ -51,8 +53,10 @@ namespace ToDoListWebApp.Controllers
         }
 
         // GET: ToDoListItems/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+            ViewBag.UserId = user.Id; 
             return View();
         }
 
@@ -62,7 +66,7 @@ namespace ToDoListWebApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Name,Complete,DueDate,Id,TimeStamp")] ToDoListItem toDoListItem)
-        public IActionResult Create([Bind("Name,Complete,DueDate,Id,TimeStamp")] ToDoListItem toDoListItem)
+        public IActionResult Create([Bind("Name,Complete,DueDate,Id,TimeStamp,UserId")] ToDoListItem toDoListItem)
         {
             if (ModelState.IsValid)
             {

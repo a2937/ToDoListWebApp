@@ -15,6 +15,7 @@ namespace ToDoListWebApp.Models
         private String name;
 
         private DateTime duedate; 
+
         public String Name
         {
             get { return name; } 
@@ -26,6 +27,12 @@ namespace ToDoListWebApp.Models
                 }
             }
         }
+
+        public String UserId { get; set; }
+
+        [ForeignKey(nameof(UserId))]
+        public ApplicationUser User { get; set; }
+
 
         public bool Complete { get; set; }
 
@@ -39,10 +46,12 @@ namespace ToDoListWebApp.Models
                 
             set
             {
+          
                 if(DateTime.Now.CompareTo(value) >= 1)
                 {
-                    throw new InvalidDateException(" Cannot assign things to be done earlier."); 
+                    //throw new InvalidDateException(" Cannot assign things to be done earlier."); 
                 }
+              
                 else
                 {
                     duedate = value; 
