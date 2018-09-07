@@ -56,7 +56,8 @@ namespace ToDoListWebApp.Controllers
         public async Task<IActionResult> Create()
         {
             ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
-            ViewBag.UserId = user.Id; 
+            ViewBag.UserId = user.Id;
+            ViewBag.TempDueDate = DateTime.UtcNow.AddDays(7);
             return View();
         }
 

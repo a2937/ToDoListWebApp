@@ -21,7 +21,7 @@ namespace ToDoListWebApp.Models
             get { return name; } 
             set
             {
-                if(value != null && value != "")
+                if(!string.IsNullOrEmpty(value))
                 {
                     name = value; 
                 }

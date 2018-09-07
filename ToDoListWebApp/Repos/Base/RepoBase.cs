@@ -26,18 +26,18 @@ namespace ToDoListWebApp.Repos.Base
         public virtual IEnumerable<T> GetAll() => Table;
 
         protected readonly ApplicationDbContext Db;
+
         protected RepoBase()
         {
             Db = new ApplicationDbContext();
             Table = Db.Set<T>();
         }
+
         protected RepoBase(DbContextOptions<ApplicationDbContext> options)
         {
             Db = new ApplicationDbContext(options);
             Table = Db.Set<T>();
         }
-
-
 
         internal IEnumerable<T> GetRange(IQueryable<T> query, int skip, int take)
             => query.Skip(skip).Take(take);
@@ -49,26 +49,31 @@ namespace ToDoListWebApp.Repos.Base
             Table.Add(entity);
             return persist ? SaveChanges() : 0;
         }
+
         public virtual int AddRange(IEnumerable<T> entities, bool persist = true)
         {
             Table.AddRange(entities);
             return persist ? SaveChanges() : 0;
         }
+
         public virtual int Update(T entity, bool persist = true)
         {
             Table.Update(entity);
             return persist ? SaveChanges() : 0;
         }
+
         public virtual int UpdateRange(IEnumerable<T> entities, bool persist = true)
         {
             Table.UpdateRange(entities);
             return persist ? SaveChanges() : 0;
         }
+
         public virtual int Delete(T entity, bool persist = true)
         {
             Table.Remove(entity);
             return persist ? SaveChanges() : 0;
         }
+
         public virtual int DeleteRange(IEnumerable<T> entities, bool persist = true)
         {
             Table.RemoveRange(entities);
@@ -128,7 +133,7 @@ namespace ToDoListWebApp.Repos.Base
             }
         }
 
-        bool _disposed = false;
+        private bool _disposed = false;
 
         public void Dispose()
         {

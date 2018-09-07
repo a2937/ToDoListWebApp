@@ -52,7 +52,7 @@ namespace ToDoListWebApp.Repos
             Team department = Table.Include(x => x.AssignedEmployees).Where(x => x.Id == DepartmentId).First();
 
             SaveChanges();
-            if (department.AssignedEmployees.Contains(user) == true)
+            if (department.AssignedEmployees.Contains(user))
             {
                 department.AssignedEmployees.Remove(user);
 
