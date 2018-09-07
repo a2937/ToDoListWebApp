@@ -13,7 +13,7 @@ namespace ToDoListWebApp.Models
         public string EmployeeId { get; set; }
 
         [ForeignKey(nameof(EmployeeId))]
-        public ApplicationUser Manager { get; set; }
+        public ApplicationUser User { get; set; }
 
         [InverseProperty(nameof(Team.Supervisor))]
         public List<Team> Teams { get; set; } = new List<Team>();

@@ -78,8 +78,15 @@ namespace ToDoListWebApp.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Name,SupervisorId,Id,TimeStamp")] Team team)
-        public IActionResult Create([Bind("Name,SupervisorId,Id,TimeStamp")] Team team)
+        public async Task<IActionResult> CreateAsync([Bind("Name,SupervisorId,Id,TimeStamp")] Team team)
         {
+            if(string.IsNullOrEmpty(team.SupervisorId.ToString()))
+            {
+                ApplicationUser user = await _userManager.FindByNameAsync(User.Identity.Name);
+                _supervisorRepo.Add(new Supervisor { EmployeeId = user.Id, User = user });
+                _supervisorRepo.SaveChanges();
+                team.SupervisorId = _supervisorRepo.GetAll().Where(x => x.EmployeeId == user.Id).FirstOrDefault().Id;
+            }
             if (ModelState.IsValid)
             {
                 //team.Id = Guid.NewGuid();
@@ -91,6 +98,7 @@ namespace ToDoListWebApp.Controllers
             }
             //ViewData["SupervisorId"] = new SelectList(_context.Set<Supervisor>(), "Id", "Id", team.SupervisorId);
             ViewData["SupervisorId"] = new SelectList(_supervisorRepo.GetAll().ToHashSet<Supervisor>(), "Id", "Id", team.SupervisorId);
+            
             return View(team);
         }
 
